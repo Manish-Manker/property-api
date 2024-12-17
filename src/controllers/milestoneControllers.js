@@ -10,6 +10,7 @@ export const createMilestone = async (req, res) => {
         const { error } = validateMilestone(milestoneData);
         if (error) {
             res.status(400).json({ status: "400", message: error, data: null });
+            console.log(error);
             return;
         }
 
@@ -22,8 +23,8 @@ export const createMilestone = async (req, res) => {
             return;
         }
     } catch (error) {
-        console.log(error);
         res.status(500).json({ status: "500", message: "Internal server error", data: null });
+        console.log(error);
         return;
     }
 }
@@ -37,14 +38,16 @@ export const getMilestone = async (req, res) => {
             return;
         }
         const result = await Milestone.find({ createdBy: userId, propertyId: propertyId });
+
         if (result !== [] && result.length > 0) {
             res.status(200).json({ status: "200", message: "Milestone fetched successfully", data: result });
         } else {
-            res.status(404).json({ status: "404", message: "Milestone not found", data: null });
+            res.status(404).json({ status: "404", message: "Milestone not found for this Property ", data: [] });
             return;
         }
     } catch (error) {
         res.status(500).json({ status: "500", message: "Internal server error", data: null });
+        console.log(error);
         return;
     }
 }
@@ -64,6 +67,7 @@ export const updateMilestone = async (req, res) => {
         const { error } = validateMilestone(milestoneData);
         if (error) {
             res.status(400).json({ status: "400", message: error, data: null });
+            console.log(error);
             return;
         }
 
@@ -77,6 +81,7 @@ export const updateMilestone = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ status: "500", message: "Internal server error", data: null });
+        console.log(error);
         return
     }
 }
@@ -99,6 +104,7 @@ export const deleteMilestone = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ status: "500", message: "Internal server error", data: null });
+        console.log(error);
         return;
     }
 }

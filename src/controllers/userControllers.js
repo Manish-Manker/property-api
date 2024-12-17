@@ -85,29 +85,24 @@ export const loginUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
     try {
-
         const userExixt = await User.findById(req.user._id);
         const { name, password, mobileNo } = req.body;
-
         let { error } = await validateUser({ name, password, mobileNo });
         if (error) {
             res.status(400).json({ status: 400, message: error, data: null });
             console.log(error);
             return;
         }
-
         if (userExixt) {
             userExixt.name = name;
             userExixt.mobileNo = mobileNo;
             userExixt.password = password;
-
             const updateData = await userExixt.save();
             const data = updateData.toObject();
             const token = generateToken(data._id);
 
             delete data.password;
             data.token = token;
-
             return res.status(200).json({ status: 200, message: "User Updated Successfully", data: data });
         } else {
             res.status(404).json({ status: 404, message: "No user data found", data: null });

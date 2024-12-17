@@ -9,8 +9,9 @@ export const setProperty = async (req, res) => {
         // joi validation
         const { error } = validateProperty(propertyData);
         if (error) {
+            res.status(400).json({ status: 400, message: error, data: null });
             console.log(error);
-            return res.status(400).json({ status: 400, message: error, data: null });
+            return;
         }
 
         propertyData.created_by = userId;
@@ -24,8 +25,8 @@ export const setProperty = async (req, res) => {
             return;
         })
     } catch (error) {
-        console.log(error);
         res.status(500).json({ status: 500, message: "Internal server error", data: null });
+        console.log(error);
         return;
     }
 }
@@ -50,12 +51,13 @@ export const getProperty = async (req, res) => {
 
         } else {
             res.status(404).json({ status: 404, message: "No properties found", data: [] });
+            console.log(error);
             return;
         }
 
     } catch (error) {
-        console.log(error);
         res.status(500).json({ status: 500, message: "Internal server error", data: null });
+        console.log(error);
         return
     }
 }
@@ -73,8 +75,9 @@ export const updateProperty = async (req, res) => {
 
         const { error } = validateProperty(propertyData);
         if (error) {
+            res.status(400).json({ status: 400, message: error, data: null });
             console.log(error);
-            return res.status(400).json({ status: 400, message: error, data: null });
+            return;
         }
 
         if (property) {
@@ -86,8 +89,8 @@ export const updateProperty = async (req, res) => {
         }
 
     } catch (error) {
-        console.log(error);
         res.status(500).json({ status: 500, message: "Internal server error", data: null });
+        console.log(error);
         return;
     }
 }
@@ -95,7 +98,7 @@ export const updateProperty = async (req, res) => {
 export const deleteProperty = async (req, res) => {
     try {
         const propertyId = req.params?.id;
-        
+
         const property = await Property.findOneAndDelete({ _id: propertyId });
         if (property) {
             res.status(200).json({ status: 200, message: "Property deleted successfully", data: property });
@@ -104,8 +107,8 @@ export const deleteProperty = async (req, res) => {
             return;
         }
     } catch (error) {
-        console.log(error);
         res.status(500).json({ status: 500, message: "Internal server error", data: null });
+        console.log(error);
         return;
     }
 

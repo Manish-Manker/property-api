@@ -6,10 +6,10 @@ export const createCustomer = async (req, res) => {
         const customerData = req.body;
         const { error } = validateCustomer(customerData);
         if (error) {
+            console.log(error);
             res.status(400).json({ status: 400, message: error, data: null });
             return;
         }
-
         const existingCustomer = await Customer.findOne({ mobileNo: customerData.mobileNo });
         if (existingCustomer) {
             res.status(400).json({ status: 400, message: 'Customer already exists', data: null });
@@ -27,6 +27,7 @@ export const createCustomer = async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({ status: 500, message: 'Internal server error', data: null });
+        return;
     }
 }
 
@@ -60,6 +61,7 @@ export const updateCustomer = async (req, res) => {
         const { error } = validateCustomer(customerData);
         if (error) {
             res.status(400).json({ status: 400, message: error, data: null });
+            console.log(error);
             return;
         }
         const existingCustomer = await Customer.findOne({ mobileNo: customerData.mobileNo });
@@ -78,6 +80,7 @@ export const updateCustomer = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ status: 500, message: 'Internal server error', data: null });
+        console.log(error);
         return;
     }
 }
@@ -102,6 +105,7 @@ export const deleteCustomer = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ status: 500, message: 'Internal server error', data: null });
+        console.log(error);
         return;
     }
 }
