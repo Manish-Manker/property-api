@@ -1,4 +1,5 @@
 import Property from '../models/propertyModel.js'
+import Milestone from "../models/milestoneModel.js";
 import { validateProperty } from '../utils/validation/propertyValidation.js'
 
 export const setProperty = async (req, res) => {
@@ -33,13 +34,13 @@ export const setProperty = async (req, res) => {
 
 export const getProperty = async (req, res) => {
     try {
-        const userId = req.user._id;
+        const userId = req.user?._id;
 
         const limit = parseInt(req.body?.page_record) || 20;
 
         const toskip = limit * (parseInt(req.body?.page_no || 1) - 1);
 
-        const properties = await Property.find({ created_by: userId }).populate('custumer_id', '_id name mobileNo').skip(toskip).limit(limit);
+        const properties = await Property.find({ created_by: userId }).populate('custumer_id', '_id name mobileNo address').skip(toskip).limit(limit);
 
         if (properties?.length > 0 && properties !== []) {
 
@@ -50,15 +51,14 @@ export const getProperty = async (req, res) => {
             res.status(200).json({ status: 200, message: "Properties fetched successfully", data });
 
         } else {
-            res.status(404).json({ status: 404, message: "No properties found", data: [] });
-            console.log(error);
+            res.status(404).json({ status: 404, message: "No properties found for this user", data: [] });
             return;
         }
 
     } catch (error) {
+        console.log(error); 
         res.status(500).json({ status: 500, message: "Internal server error", data: null });
-        console.log(error);
-        return
+        return;
     }
 }
 
@@ -98,8 +98,15 @@ export const updateProperty = async (req, res) => {
 export const deleteProperty = async (req, res) => {
     try {
         const propertyId = req.params?.id;
+        const userId = req.user?._id;
 
-        const property = await Property.findOneAndDelete({ _id: propertyId });
+        const property = await Property.findOneAndDelete({ _id: propertyId , created_by: userId});
+        // console.log(property);
+        
+        const result = await Milestone.deleteMany({ propertyId : propertyId, createdBy :userId});
+        // console.log("->",result);
+        
+
         if (property) {
             res.status(200).json({ status: 200, message: "Property deleted successfully", data: property });
         } else {

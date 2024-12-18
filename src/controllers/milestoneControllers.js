@@ -16,6 +16,7 @@ export const createMilestone = async (req, res) => {
 
         const milestone = new Milestone({ ...milestoneData, createdBy: userId });
         const result = await milestone.save();
+
         if (result) {
             res.status(201).json({ status: "201", message: "Milestone created successfully", data: result });
         } else {
@@ -40,7 +41,18 @@ export const getMilestone = async (req, res) => {
         const result = await Milestone.find({ createdBy: userId, propertyId: propertyId });
 
         if (result !== [] && result.length > 0) {
-            res.status(200).json({ status: "200", message: "Milestone fetched successfully", data: result });
+
+            let paidMilestone = 0;
+            let unpaidMilestone = 0;
+            result.forEach(obj => {
+                if (obj.status === 'paid') {
+                    paidMilestone++;
+                } else {
+                    unpaidMilestone++
+                }
+
+            });
+            res.status(200).json({ status: "200", message: "Milestone fetched successfully", data: result , paidMilestone , unpaidMilestone });
         } else {
             res.status(404).json({ status: "404", message: "Milestone not found for this Property ", data: [] });
             return;

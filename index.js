@@ -19,7 +19,7 @@ ConnectDB().then((res) => {
     console.error("Failed to connect to the database:", err);
     process.exit(1);
     return err;
-})
+});
 
 const app = express();
 
@@ -29,7 +29,6 @@ app.use(cors({
     origin: "*",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE"
 }));
-
 
 app.use(morgan("combined"));
 
@@ -41,7 +40,6 @@ app.use("/user", UserRouter);
 app.use("/property", PropertyRouter);
 app.use("/customer", Customer);
 app.use("/milestone", Milestone);
-
 
 // Global error handling middleware
 app.use((err, req, res, next) => {
@@ -66,7 +64,7 @@ app.use((req, res) => {
 });
 
 // Start the server
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 8022;
 app.listen(port, () => {
     console.log(`Server started at port ${port}`);
 }).on("error", (err) => {

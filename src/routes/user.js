@@ -5,7 +5,6 @@ import {
     updateUser,
 } from "../controllers/userControllers.js";
 
-
 import { userAuth } from "../middleware/userAuth.js";
 
 const router = express.Router();
@@ -13,6 +12,5 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.put("/update", userAuth, updateUser);
-
 
 export default router;

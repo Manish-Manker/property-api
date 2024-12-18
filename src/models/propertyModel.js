@@ -34,6 +34,10 @@ const propertySchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    status:{
+      type : String,
+      required:true,
+    },
     custumer_id : {
         type: mongoose.Schema.Types.ObjectId,
         ref: "customer",

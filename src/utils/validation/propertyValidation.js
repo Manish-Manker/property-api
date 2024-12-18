@@ -10,6 +10,7 @@ const propertySchema = joi.object({
     price: joi.number().required().error(new Error('price is required and can not be empty')),
     total: joi.number().required().error(new Error('total is required and can not be empty')),
     custumer_id: joi.string().optional().error(new Error('custumer id  can not be empty')),
+    status: joi.string().trim().required().error(new Error("status is required"))
 });
 
 export const validateProperty = (data) => {

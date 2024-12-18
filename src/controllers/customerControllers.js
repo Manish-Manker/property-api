@@ -11,6 +11,7 @@ export const createCustomer = async (req, res) => {
             return;
         }
         const existingCustomer = await Customer.findOne({ mobileNo: customerData.mobileNo });
+        
         if (existingCustomer) {
             res.status(400).json({ status: 400, message: 'Customer already exists', data: null });
             return;
@@ -38,7 +39,7 @@ export const getCustomers = async (req, res) => {
         if (customers.length > 0 && customers !== []) {
             res.status(200).json({ status: 200, message: 'Customers found successfully', data: customers });
         } else {
-            res.status(404).json({ status: 404, message: 'Customers not found', data: null });
+            res.status(404).json({ status: 404, message: 'No Customers found', data: null });
             return;
         }
     } catch (error) {
@@ -64,8 +65,10 @@ export const updateCustomer = async (req, res) => {
             console.log(error);
             return;
         }
-        const existingCustomer = await Customer.findOne({ mobileNo: customerData.mobileNo });
-        if (existingCustomer) {
+        const existingCustomer = await Customer.find({  _id: { $ne: customerId },mobileNo: customerData.mobileNo });
+        // console.log("->>",existingCustomer);
+
+        if (existingCustomer.length > 0 && existingCustomer !== []) {
             res.status(400).json({ status: 400, message: 'Customer already exists', data: null });
             return;
         }

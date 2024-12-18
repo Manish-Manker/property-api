@@ -27,4 +27,4 @@ export const userAuth = async (req, res, next) => {
     } else {
         return res.status(401).json({ status: 401, message: "Not authorized, no token", data: null });
     }
-};
+}; 

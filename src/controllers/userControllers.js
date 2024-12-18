@@ -17,7 +17,7 @@ export const registerUser = async (req, res) => {
 
         if (userExixt.lenght !== [] && userExixt.length > 0) {
             res.status(400).json({ status: 400, message: "user Already Exist", data: null });
-            return new Error("User Already Exist");
+            return;
         }
         const newUser = await User.create({
             name,
@@ -36,8 +36,8 @@ export const registerUser = async (req, res) => {
                 }
             });
         } else {
-            res.status(400).json({ status: 400, message: "User not Created in DB", data: null });
-            return new Error("Invalid User Data");
+            res.status(400).json({ status: 400, message: "User not Created in DB, Invalid User Data", data: null });
+            return;
         }
     } catch (error) {
         console.log(error);
@@ -50,9 +50,8 @@ export const loginUser = async (req, res) => {
 
     try {
         const { mobileNo, password } = req.body;
-        // validation joi
 
-        let { error } = await validateLoginUser({ mobileNo, password });
+        let { error } = validateLoginUser({ mobileNo, password });
         if (error) {
             res.status(400).json({ status: 400, message: error, data: null });
             console.log(error);
@@ -63,8 +62,7 @@ export const loginUser = async (req, res) => {
 
         if (user && (await user.matchPassword(password))) {
             res.status(200).json({
-                status: 200,
-                message: "Login Successfully",
+                status: 200, message: "Login Successfully",
                 data: {
                     id: user._id,
                     name: user.name,
@@ -73,26 +71,36 @@ export const loginUser = async (req, res) => {
                 }
             });
         } else {
-            res.status(404).json({ status: 404, message: "Invalid Mobile Number or password", data: null });
-            return new Error("Invalid Mobile Number or password");
+            res.status(400).json({ status: 400, message: "Invalid Mobile Number or password", data: null });
+            return;
         }
     } catch (error) {
-        console.log(error);
         res.status(500).json({ status: 500, message: "Internal Server Error", data: null });
-        return new Error("Internal Server Error");
+        console.log(error);
+        return;
     }
 };
 
 export const updateUser = async (req, res) => {
     try {
-        const userExixt = await User.findById(req.user._id);
         const { name, password, mobileNo } = req.body;
-        let { error } = await validateUser({ name, password, mobileNo });
+
+
+        let { error } = validateUser({ name, password, mobileNo });
         if (error) {
             res.status(400).json({ status: 400, message: error, data: null });
             console.log(error);
             return;
         }
+        const userExixt = await User.findById(req.user._id);
+
+        const userId = req.user._id;
+        const userPreExixt = await User.find({ _id: { $ne: userId },mobileNo: mobileNo });
+        if(userPreExixt.length >0 && userPreExixt !== []){
+            res.status(400).json({status:400 , message :"User mobile Number already exixt"});
+            return;
+        }
+
         if (userExixt) {
             userExixt.name = name;
             userExixt.mobileNo = mobileNo;
@@ -103,13 +111,14 @@ export const updateUser = async (req, res) => {
 
             delete data.password;
             data.token = token;
-            return res.status(200).json({ status: 200, message: "User Updated Successfully", data: data });
+            res.status(200).json({ status: 200, message: "User Updated Successfully", data: data });
         } else {
             res.status(404).json({ status: 404, message: "No user data found", data: null });
-            return new Error("No user data found");
+            return;
         }
     } catch (error) {
+        res.status(500).json({ status: 500, message: "Internal Server Error", data: null });
         console.log(error);
-        return res.status(500).json({ status: 500, message: "Internal Server Error", data: null });
+        return;
     }
 };
