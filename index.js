@@ -11,6 +11,8 @@ import UserRouter from "./src/routes/user.js";
 import PropertyRouter from "./src/routes/property.js";
 import Customer from "./src/routes/customer.js";
 import Milestone from "./src/routes/milestone.js";
+import wallet from "./src/routes/wallet.js";
+import Transaction from "./src/routes/transaction.js"
 
 config();
 
@@ -48,6 +50,8 @@ app.use("/user", UserRouter);
 app.use("/property", PropertyRouter);
 app.use("/customer", Customer);
 app.use("/milestone", Milestone);
+app.use("/wallet", wallet);
+app.use("/transaction", Transaction);
 
 // Global error handling middleware
 app.use((err, req, res, next) => {
