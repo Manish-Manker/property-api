@@ -37,16 +37,37 @@ export const getProperty = async (req, res) => {
         const userId = req.user?._id;
 
         const limit = parseInt(req.body?.page_record) || 20;
-
         const toskip = limit * (parseInt(req.body?.page_no || 1) - 1);
 
-        const properties = await Property.find({ created_by: userId }).populate('custumer_id', '_id name mobileNo address').skip(toskip).limit(limit);
+        const properties = await Property.find({ created_by: userId })
+            .populate('custumer_id', '_id name mobileNo address')
+            .skip(toskip)
+            .limit(limit);
 
-        if (properties?.length > 0 && properties !== []) {
+        if (properties?.length > 0) {
+            const data = await Promise.all(properties.map(async (prop) => {
+                let propertyId = prop?._doc?._id;
+                // console.log("propertyId - >", propertyId);
 
-            const data = properties.map((property) => {
-                return { ...property._doc }
-            });
+                const result = await Milestone.find({ propertyId: propertyId });
+                // console.log("result->", result);
+
+                let paidMilestone = 0;
+                let unpaidMilestone = 0;
+                let totaldMilestone = result?.length || 0;
+
+                if (result.length > 0) {
+                    result.forEach(obj => {
+                        if (obj.status === 'paid') {
+                            paidMilestone++;
+                        } else {
+                            unpaidMilestone++;
+                        }
+                    });
+                }
+
+                return { ...prop._doc, totaldMilestone, paidMilestone, unpaidMilestone };
+            }));
 
             res.status(200).json({ status: 200, message: "Properties fetched successfully", data });
 
@@ -56,11 +77,13 @@ export const getProperty = async (req, res) => {
         }
 
     } catch (error) {
-        console.log(error); 
+        console.log(error);
         res.status(500).json({ status: 500, message: "Internal server error", data: null });
         return;
     }
-}
+};
+
+
 
 export const updateProperty = async (req, res) => {
     try {
@@ -100,12 +123,12 @@ export const deleteProperty = async (req, res) => {
         const propertyId = req.params?.id;
         const userId = req.user?._id;
 
-        const property = await Property.findOneAndDelete({ _id: propertyId , created_by: userId});
+        const property = await Property.findOneAndDelete({ _id: propertyId, created_by: userId });
         // console.log(property);
-        
-        const result = await Milestone.deleteMany({ propertyId : propertyId, createdBy :userId});
+
+        const result = await Milestone.deleteMany({ propertyId: propertyId, createdBy: userId });
         // console.log("->",result);
-        
+
 
         if (property) {
             res.status(200).json({ status: 200, message: "Property deleted successfully", data: property });

@@ -3,7 +3,9 @@ import { config } from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import moment from 'moment-timezone';
 import { ConnectDB } from "./src/connection/dbConnection.js";
+
 
 import UserRouter from "./src/routes/user.js";
 import PropertyRouter from "./src/routes/property.js";
@@ -30,7 +32,13 @@ app.use(cors({
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE"
 }));
 
-app.use(morgan("combined"));
+// app.use(morgan("combined"));
+// Custom morgan format that uses IST (Indian Standard Time)
+morgan.token('date', function () {
+    return moment().tz('Asia/Kolkata').format('DD/MMM/YYYY:hh:mm:ss A ZZ');
+});
+app.use(morgan(':remote-addr - :remote-user [:date] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"'));
+
 
 // Middleware to parse JSON bodies
 app.use(express.json());
