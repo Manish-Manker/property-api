@@ -5,15 +5,27 @@ export const getBalance = async (req, res) => {
     try {
         const userId = req.user._id;
         const walletData = await Wallet.find({ userId: userId });
+
         if (walletData == [] || walletData.length == 0) {
-            res.status(200).json({ status: 200, message: "balance found", data: 0 })
-            return;
+            let data = new Wallet({
+                balance: 0,
+                userId: userId
+            });
+            let result = await data.save();
+            if (result) {
+                res.status(201).json({ status: 200, message: "balance Found successfully", data: { balance: data.balance } });
+                return;
+            } else {
+                res.status(400).json({ status: 400, message: "balance not Found", data: null });
+                return;
+            }
         }
+
         let balance = walletData[0].balance;
         res.status(200).json({ status: 200, message: "balance found", data: balance });
     } catch (error) {
         res.status(500).json({ status: 500, message: "Internal server Error", data: null });
-        return
+        return;
     }
 }
 

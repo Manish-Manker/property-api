@@ -12,7 +12,7 @@ import PropertyRouter from "./src/routes/property.js";
 import Customer from "./src/routes/customer.js";
 import Milestone from "./src/routes/milestone.js";
 import wallet from "./src/routes/wallet.js";
-import Transaction from "./src/routes/transaction.js"
+import Transaction from "./src/routes/transaction.js";
 
 config();
 
