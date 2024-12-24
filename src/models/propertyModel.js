@@ -18,11 +18,11 @@ const propertySchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    size:{
+    size: {
       type: String,
       required: true,
     },
-    typeof_size:{
+    typeof_size: {
       type: String,
       required: true,
     },
@@ -34,13 +34,13 @@ const propertySchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    status:{
-      type : String,
-      required:true,
+    status: {
+      type: String,
+      required: true,
     },
-    custumer_id : {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "customer",
+    custumer_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "customer",
     },
     created_by: {
       type: mongoose.Schema.Types.ObjectId,
@@ -55,5 +55,5 @@ const propertySchema = mongoose.Schema(
 
 
 const property = mongoose.model("Property", propertySchema);
-  
+
 export default property;

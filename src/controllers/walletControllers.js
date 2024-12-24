@@ -21,8 +21,8 @@ export const getBalance = async (req, res) => {
             }
         }
 
-        let balance = walletData[0].balance;
-        res.status(200).json({ status: 200, message: "balance found", data: balance });
+        let balance = walletData[0]?.balance;
+        res.status(200).json({ status: 200, message: "balance found successfully", data: balance });
     } catch (error) {
         res.status(500).json({ status: 500, message: "Internal server Error", data: null });
         return;

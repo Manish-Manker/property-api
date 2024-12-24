@@ -14,7 +14,7 @@ const propertySchema = joi.object({
 });
 
 const statusSchema = joi.object({
-    status: joi.string().valid('added', 'sold', 'deal_runing' , 'purchase').trim().required().error(new Error("Status is required and it should be added or sold or deal_done or purchase"))
+    status: joi.string().valid('added', 'sold', 'deal_runing', 'purchase').trim().required().error(new Error("Status is required and it should be added or sold or deal_done or purchase"))
 });
 
 export const validateProperty = (data) => {

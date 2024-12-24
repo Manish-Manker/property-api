@@ -18,23 +18,23 @@ config();
 const app = express();
 
 //limiter for rate limiting
-const limiter = rateLimit({
-    windowMs: 1 * 60 * 1000,
-    limit: 250,
-    statusCode: 429,
-    handler: (req, res) => {
-        res.status(429).json({
-            status: 429,
-            message: 'Too many requests from this IP, please try again after some time',
-            data: null
-        });
-        return;
-    },
-    message: 'Too many requests from this IP, please try again after an some time',
-    standardHeaders: true,
-    legacyHeaders: false,
-    validate: false,
-});
+// const limiter = rateLimit({
+//     windowMs: 1 * 60 * 1000,
+//     limit: 250,
+//     statusCode: 429,
+//     handler: (req, res) => {
+//         res.status(429).json({
+//             status: 429,
+//             message: 'Too many requests from this IP, please try again after some time',
+//             data: null
+//         });
+//         return;
+//     },
+//     message: 'Too many requests from this IP, please try again after an some time',
+//     standardHeaders: true,
+//     legacyHeaders: false,
+//     validate: false,
+// });
 
 
 // Connect to the database
@@ -54,7 +54,7 @@ app.use(cors({
 }));
 
 // app.use(morgan("combined"));
-// Custom morgan format that uses IST (Indian Standard Time)
+// Custom morgan format that uses IST timezone
 morgan.token('date', function () {
     return moment().tz('Asia/Kolkata').format('DD/MMM/YYYY:hh:mm:ss A ZZ');
 });
@@ -65,7 +65,7 @@ app.use(morgan(':remote-addr - :remote-user [:date] ":method :url HTTP/:http-ver
 app.use(express.json());
 
 // Apply the rate limiting middleware to all requests.
-app.use(limiter);
+// app.use(limiter);
 
 // Routes
 app.use("/user", UserRouter);

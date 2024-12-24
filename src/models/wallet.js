@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-
 const walletSchema = mongoose.Schema(
     {
         balance: {

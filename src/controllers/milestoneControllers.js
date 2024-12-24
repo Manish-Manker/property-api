@@ -44,20 +44,28 @@ export const getMilestone = async (req, res) => {
         }
         const result = await Milestone.find({ createdBy: userId, propertyId: propertyId });
 
+        let paidMilestone = 0;
+        let unpaidMilestone = 0;
+        let totalPaidAmount = 0;
+        let totalUnpaidAmount = 0;
+        let totalAmount = 0;
+
         if (result !== [] && result.length > 0) {
 
-            let paidMilestone = 0;
-            let unpaidMilestone = 0;
             result.forEach(obj => {
                 if (obj.status === 'paid') {
                     paidMilestone++;
+                    totalPaidAmount += parseInt(obj.amount);
+                    totalAmount += parseInt(obj.amount);
                 } else {
-                    unpaidMilestone++
+                    unpaidMilestone++;
+                    totalUnpaidAmount += parseInt(obj.amount);
+                    totalAmount += parseInt(obj.amount);
                 }
             });
-            res.status(200).json({ status: "200", message: "Milestone fetched successfully", data: result, paidMilestone, unpaidMilestone });
+            res.status(200).json({ status: "200", message: "Milestone fetched successfully", data: result, paidMilestone, unpaidMilestone, totalAmount, totalPaidAmount, totalUnpaidAmount });
         } else {
-            res.status(404).json({ status: "404", message: "Milestone not found for this Property ", data: [] });
+            res.status(404).json({ status: "404", message: "Milestone not found for this Property ", data: [{ paidMilestone, unpaidMilestone, totalAmount, totalPaidAmount, totalUnpaidAmount }] });
             return;
         }
     } catch (error) {

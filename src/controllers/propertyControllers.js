@@ -37,7 +37,6 @@ export const getProperty = async (req, res) => {
     try {
         const userId = req.user?._id;
         const status = req.query?.status || req.body?.status; 
-        
 
         const limit = parseInt(req.body?.page_record) || 20;
         const toskip = limit * (parseInt(req.body?.page_no || 1) - 1);
@@ -103,7 +102,6 @@ export const getProperty = async (req, res) => {
         return;
     }
 };
-
 
 
 export const updateProperty = async (req, res) => {
