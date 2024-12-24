@@ -35,7 +35,7 @@ export const saveTransaction = async (req, res) => {
             // console.log(data);
 
             if (!data) {
-                res.status(400).json({ status: 400, message: "balance not updated in Wallet", data: null })
+                res.status(400).json({ status: 400, message: "balance not updated in Wallet", data: null });
                 return;
             }
 
@@ -50,7 +50,7 @@ export const saveTransaction = async (req, res) => {
 
             if (oldBalance - newbalance < 0) {
                 console.log("You don't have sufficient amount to subtract");
-                res.status(400).json({ status: 400, message: "You don't have sufficient amount to subtract", data: null })
+                res.status(400).json({ status: 400, message: "You don't have sufficient amount to subtract", data: null });
                 return;
             }
 
@@ -58,7 +58,7 @@ export const saveTransaction = async (req, res) => {
 
             if (!data) {
                 console.log("balance not updated in Wallet");
-                res.status(400).json({ status: 400, message: "balance not updated in Wallet", data: null })
+                res.status(400).json({ status: 400, message: "balance not updated in Wallet", data: null });
                 return;
             }
         }
@@ -72,7 +72,7 @@ export const saveTransaction = async (req, res) => {
 
             if (!propertyData) {
                 console.log("property status not updated");
-                res.status(400).json({ status: 400, message: "property status not updated", data: null })
+                res.status(400).json({ status: 400, message: "property status not updated", data: null });
                 return;
             }
         }
@@ -81,9 +81,10 @@ export const saveTransaction = async (req, res) => {
         let result = await transaction.save();
 
         if (result) {
-            res.status(201).json({ status: 201, message: "transaction save succesful", data: result });
+            res.status(201).json({ status: 201, message: "Transaction save successfully", data: result });
         } else {
-            res.status(401).json({ status: 401, message: "transaction did not save", data: null })
+            res.status(401).json({ status: 401, message: "Transaction did not save", data: null });
+            return;
         }
 
     } catch (error) {
@@ -98,7 +99,7 @@ export const getTransaction = async (req, res) => {
         const userId = req.user._id;
         let data = await Transaction.find({ userId: userId }).sort({ $natural: -1 });
         if (data !== []) {
-            res.status(200).json({ status: 200, message: "transaction found", data });
+            res.status(200).json({ status: 200, message: "transaction found successfully", data });
         } else {
             res.status(404).json({ status: "transaction not found", data });
             return;

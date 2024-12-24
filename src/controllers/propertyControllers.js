@@ -1,5 +1,6 @@
-import Property from '../models/propertyModel.js'
+import Property from '../models/propertyModel.js';
 import Milestone from "../models/milestoneModel.js";
+
 import { validateProperty, validateStatus } from '../utils/validation/propertyValidation.js'
 
 export const setProperty = async (req, res) => {
@@ -10,8 +11,8 @@ export const setProperty = async (req, res) => {
         // joi validation
         const { error } = validateProperty(propertyData);
         if (error) {
-            res.status(400).json({ status: 400, message: error, data: null });
             console.log(error);
+            res.status(400).json({ status: 400, message: error, data: null });
             return;
         }
 
@@ -52,7 +53,6 @@ export const getProperty = async (req, res) => {
         else if (status) {
             console.log("status->", status);
             
-
             const { error } = validateStatus({ status });
             if (error) {
                 res.status(400).json({ status: 400, message: error, data: null });
@@ -91,9 +91,7 @@ export const getProperty = async (req, res) => {
 
                 return { ...prop._doc, totaldMilestone, paidMilestone, unpaidMilestone };
             }));
-
             res.status(200).json({ status: 200, message: "Properties fetched successfully", data });
-
         } else {
             res.status(404).json({ status: 404, message: "No properties found for this user", data: [] });
             return;

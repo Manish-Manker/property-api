@@ -5,7 +5,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import moment from 'moment-timezone';
 import { ConnectDB } from "./src/connection/dbConnection.js";
-
+import { rateLimit } from 'express-rate-limit';
 
 import UserRouter from "./src/routes/user.js";
 import PropertyRouter from "./src/routes/property.js";
@@ -15,6 +15,27 @@ import wallet from "./src/routes/wallet.js";
 import Transaction from "./src/routes/transaction.js";
 
 config();
+const app = express();
+
+//limiter for rate limiting
+const limiter = rateLimit({
+    windowMs: 1 * 60 * 1000,
+    limit: 250,
+    statusCode: 429,
+    handler: (req, res) => {
+        res.status(429).json({
+            status: 429,
+            message: 'Too many requests from this IP, please try again after some time',
+            data: null
+        });
+        return;
+    },
+    message: 'Too many requests from this IP, please try again after an some time',
+    standardHeaders: true,
+    legacyHeaders: false,
+    validate: false,
+});
+
 
 // Connect to the database
 ConnectDB().then((res) => {
@@ -24,8 +45,6 @@ ConnectDB().then((res) => {
     process.exit(1);
     return err;
 });
-
-const app = express();
 
 // Middleware for security headers
 app.use(helmet());
@@ -44,6 +63,9 @@ app.use(morgan(':remote-addr - :remote-user [:date] ":method :url HTTP/:http-ver
 
 // Middleware to parse JSON bodies
 app.use(express.json());
+
+// Apply the rate limiting middleware to all requests.
+app.use(limiter);
 
 // Routes
 app.use("/user", UserRouter);
@@ -74,6 +96,7 @@ app.use((req, res) => {
     });
     return;
 });
+
 
 // Start the server
 const port = process.env.PORT || 8022;

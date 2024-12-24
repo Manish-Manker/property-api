@@ -36,7 +36,7 @@ export const registerUser = async (req, res) => {
                 }
             });
         } else {
-            res.status(400).json({ status: 400, message: "User not Created in DB, Invalid User Data", data: null });
+            res.status(400).json({ status: 400, message: "User not Created, Invalid User Data", data: null });
             return;
         }
     } catch (error) {
@@ -85,7 +85,6 @@ export const updateUser = async (req, res) => {
     try {
         const { name, password, mobileNo } = req.body;
 
-
         let { error } = validateUser({ name, password, mobileNo });
         if (error) {
             res.status(400).json({ status: 400, message: error, data: null });
@@ -95,9 +94,10 @@ export const updateUser = async (req, res) => {
         const userExixt = await User.findById(req.user._id);
 
         const userId = req.user._id;
-        const userPreExixt = await User.find({ _id: { $ne: userId },mobileNo: mobileNo });
-        if(userPreExixt.length >0 && userPreExixt !== []){
-            res.status(400).json({status:400 , message :"User mobile Number already exixt"});
+        const userPreExixt = await User.find({ _id: { $ne: userId }, mobileNo: mobileNo });
+
+        if (userPreExixt.length > 0 && userPreExixt !== []) {
+            res.status(400).json({ status: 400, message: "Mobile Number already exixt", data: null });
             return;
         }
 
