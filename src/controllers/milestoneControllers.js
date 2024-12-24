@@ -1,4 +1,5 @@
 import Milestone from "../models/milestoneModel.js";
+import Property from '../models/propertyModel.js';
 import { validateMilestone } from '../utils/validation/milestoneValidation.js';
 import { isValidObjectId } from "mongoose";
 
@@ -43,31 +44,34 @@ export const getMilestone = async (req, res) => {
             return;
         }
         const result = await Milestone.find({ createdBy: userId, propertyId: propertyId });
+        const property = await Property.findOne({ _id: propertyId, created_by: userId });
 
         let paidMilestone = 0;
         let unpaidMilestone = 0;
         let totalPaidAmount = 0;
         let totalUnpaidAmount = 0;
-        let totalAmount = 0;
 
-        if (result !== [] && result.length > 0) {
+        let totalAmount = parseInt(property?.total) || 0;
 
+        totalUnpaidAmount = parseInt(totalAmount) - parseInt(totalPaidAmount);
+
+        if (result?.length > 0) {
             result.forEach(obj => {
                 if (obj.status === 'paid') {
                     paidMilestone++;
                     totalPaidAmount += parseInt(obj.amount);
-                    totalAmount += parseInt(obj.amount);
                 } else {
                     unpaidMilestone++;
-                    totalUnpaidAmount += parseInt(obj.amount);
-                    totalAmount += parseInt(obj.amount);
                 }
             });
-            res.status(200).json({ status: "200", message: "Milestone fetched successfully", data: result, paidMilestone, unpaidMilestone, totalAmount, totalPaidAmount, totalUnpaidAmount });
+
+            totalUnpaidAmount =   ( parseInt(totalAmount) - parseInt(totalPaidAmount));
+
         } else {
-            res.status(404).json({ status: "404", message: "Milestone not found for this Property ", data: [{ paidMilestone, unpaidMilestone, totalAmount, totalPaidAmount, totalUnpaidAmount }] });
+            res.status(404).json({ status: "404", message: "Milestone not found for this Property ", data: [{ totalAmount, paidMilestone, unpaidMilestone, totalPaidAmount, totalUnpaidAmount }] });
             return;
         }
+        res.status(200).json({ status: "200", message: "Milestone fetched successfully", data: result, totalAmount, paidMilestone, unpaidMilestone, totalPaidAmount, totalUnpaidAmount });
     } catch (error) {
         console.log(error);
         res.status(500).json({ status: "500", message: "Internal server error", data: null });
