@@ -32,11 +32,6 @@ export const setProperty = async (req, res) => {
 
         propertyData.created_by = userId;
 
-        const existingProperty = await Property.findOne({ name: propertyData.name, created_by: userId });
-        if (existingProperty) {
-            res.status(400).json({ status: 400, message: "Property name already exists", data: null });
-            return;
-        }
 
         const property = new Property(propertyData);
 
