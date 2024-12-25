@@ -8,11 +8,36 @@ export const createMilestone = async (req, res) => {
         const userId = req.user?.id;
         const milestoneData = req.body;
 
-        //valiadation
+        // Validation
         const { error } = validateMilestone(milestoneData);
         if (error) {
             console.log(error);
             res.status(400).json({ status: "400", message: error, data: null });
+            return;
+        }
+
+        const property = await Property.findOne({ _id: milestoneData.propertyId, created_by: userId });
+        if (!property) {
+            res.status(404).json({ status: "404", message: "Property not found", data: null });
+            return;
+        }
+        // console.log("property", property);
+
+        const milestones = await Milestone.find({ propertyId: milestoneData.propertyId, createdBy: userId });
+        // console.log("milestones", milestones);
+
+        let totalPaidAmount = 0;
+        milestones.forEach(milestone => {
+            if (milestone.status === 'paid') {
+                totalPaidAmount += parseInt(milestone.amount);
+            }
+        });
+        const totalAmount = parseInt(property.total);
+        const unpaidAmount = totalAmount - totalPaidAmount;
+        // console.log("unpaidAmount", unpaidAmount);
+
+        if (parseInt(milestoneData.amount) > unpaidAmount) {
+            res.status(400).json({ status: "400", message: "Milestone amount exceeds unpaid amount", data: null });
             return;
         }
 
@@ -65,7 +90,7 @@ export const getMilestone = async (req, res) => {
                 }
             });
 
-            totalUnpaidAmount =   ( parseInt(totalAmount) - parseInt(totalPaidAmount));
+            totalUnpaidAmount = (parseInt(totalAmount) - parseInt(totalPaidAmount)); 
 
         } else {
             res.status(404).json({ status: "404", message: "Milestone not found for this Property ", data: [{ totalAmount, paidMilestone, unpaidMilestone, totalPaidAmount, totalUnpaidAmount }] });
@@ -101,18 +126,25 @@ export const updateMilestone = async (req, res) => {
             return;
         }
 
-        const result = await Milestone.findOneAndUpdate({ _id: milestoneId, createdBy: userId }, milestoneData, { new: true });
-        if (result) {
-            res.status(200).json({ status: "200", message: "Milestone updated successfully", data: result });
+        const existingMilestone = await Milestone.findOne({ _id: milestoneId, createdBy: userId });
+
+        if (existingMilestone && existingMilestone.status === 'unpaid') {
+            const result = await Milestone.findOneAndUpdate({ _id: milestoneId, createdBy: userId }, milestoneData, { new: true });
+            if (result) {
+                res.status(200).json({ status: "200", message: "Milestone updated successfully", data: result });
+            } else {
+                res.status(400).json({ status: "400", message: "Milestone not updated", data: null });
+                return;
+            }
         } else {
-            res.status(400).json({ status: "400", message: "Milestone not updated", data: null });
-            return
+            res.status(400).json({ status: "400", message: "Milestone cannot be updated as it is already paid", data: null });
+            return;
         }
 
     } catch (error) {
         console.log(error);
         res.status(500).json({ status: "500", message: "Internal server error", data: null });
-        return
+        return;
     }
 }
 
@@ -128,11 +160,11 @@ export const deleteMilestone = async (req, res) => {
             return;
         }
 
-        const result = await Milestone.findOneAndDelete({ _id: milestoneId, createdBy: userId });
+        const result = await Milestone.findOneAndDelete({ _id: milestoneId, createdBy: userId, status: 'unpaid' });
         if (result) {
             res.status(200).json({ status: "200", message: "Milestone deleted successfully", data: result });
         } else {
-            res.status(400).json({ status: "400", message: "Milestone not deleted", data: null });
+            res.status(400).json({ status: "400", message: "Milestone can not be deleted as it is already paid", data: null });
             return;
         }
 
