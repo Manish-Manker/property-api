@@ -10,6 +10,7 @@ export const saveTransaction = async (req, res) => {
         let transactionData = req.body;
         let propertyId = req.body?.propertyId;
 
+
         // validation 
         const { error } = validateTransaction(transactionData);
         if (error) {

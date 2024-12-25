@@ -16,6 +16,20 @@ export const setProperty = async (req, res) => {
             return;
         }
 
+        let PartnerPercentage = checkPartnerPercentage(propertyData.partner);
+
+        if (!PartnerPercentage) {
+            console.log("Partner percentage should be 100");
+            res.status(400).json({ status: 400, message: "Partner percentage should be 100", data: null });
+            return;
+        }
+
+        const existingProperty = await Property.findOne({ property_name: propertyData.property_name, created_by: userId });
+        if (existingProperty) {
+            res.status(400).json({ status: 400, message: "Property name already exists", data: null });
+            return;
+        }
+
         propertyData.created_by = userId;
         const property = new Property(propertyData);
 
@@ -36,7 +50,7 @@ export const setProperty = async (req, res) => {
 export const getProperty = async (req, res) => {
     try {
         const userId = req.user?._id;
-        const status = req.query?.status || req.body?.status; 
+        const status = req.query?.status || req.body?.status;
 
         const limit = parseInt(req.body?.page_record) || 20;
         const toskip = limit * (parseInt(req.body?.page_no || 1) - 1);
@@ -51,7 +65,7 @@ export const getProperty = async (req, res) => {
         }
         else if (status) {
             console.log("status->", status);
-            
+
             const { error } = validateStatus({ status });
             if (error) {
                 res.status(400).json({ status: 400, message: error, data: null });
@@ -103,7 +117,6 @@ export const getProperty = async (req, res) => {
     }
 };
 
-
 export const updateProperty = async (req, res) => {
     try {
         const propertyData = req.body;
@@ -119,6 +132,14 @@ export const updateProperty = async (req, res) => {
         if (error) {
             res.status(400).json({ status: 400, message: error, data: null });
             console.log(error);
+            return;
+        }
+
+        let PartnerPercentage = checkPartnerPercentage(propertyData.partner);
+
+        if (!PartnerPercentage) {
+            console.log("Partner percentage should be 100");
+            res.status(400).json({ status: 400, message: "Partner percentage should be 100", data: null });
             return;
         }
 
@@ -160,4 +181,25 @@ export const deleteProperty = async (req, res) => {
         return;
     }
 
+}
+
+
+const checkPartnerPercentage = (partnerData) => {
+    // console.log("partnerData->", partnerData);
+
+    if (partnerData.length === 1 && partnerData[0] === "Individual") {
+        return true;
+    }
+    let totalPercentage = 0;
+
+    partnerData.forEach(obj => {
+        totalPercentage += parseInt(obj.percentage);
+    });
+    // console.log("totalPercentage->", totalPercentage);
+
+    if (totalPercentage === 100) {
+        return true;
+    } else {
+        return false;
+    }
 }

@@ -5,6 +5,7 @@ const milestoneSchema = joi.object({
     dueDate: joi.string().required().error(new Error('Due date is required and not empty')),
     status: joi.string().valid('paid', 'unpaid').required().error(new Error('Status is required and it should be paid or unpaid')),
     propertyId: joi.string().required().error(new Error('Property id is required and not empty')),
+    remark: joi.string().allow('').required().error(new Error('Remark should be string')),
 });
 
 export const validateMilestone = (data) => {

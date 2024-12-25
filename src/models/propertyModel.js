@@ -46,6 +46,10 @@ const propertySchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+    partner:{
+      type:[],
+      required:true
+    }
   },
   {
     timestamps: true,

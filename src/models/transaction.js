@@ -10,6 +10,9 @@ const transactionSchema = mongoose.Schema(
             type: Number,
             required: true,
         },
+        remark:{
+            type: String,
+        },
         userId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",

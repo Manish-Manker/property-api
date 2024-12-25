@@ -36,12 +36,11 @@ const app = express();
 //     validate: false,
 // });
 
-
 // Connect to the database
 ConnectDB().then((res) => {
     console.log(res);
 }).catch((err) => {
-    console.error("Failed to connect to the database:", err);
+    console.error("Failed to connect to the database:",  err);
     process.exit(1);
     return err;
 });
@@ -59,7 +58,6 @@ morgan.token('date', function () {
     return moment().tz('Asia/Kolkata').format('DD/MMM/YYYY:hh:mm:ss A ZZ');
 });
 app.use(morgan(':remote-addr - :remote-user [:date] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"'));
-
 
 // Middleware to parse JSON bodies
 app.use(express.json());
@@ -96,7 +94,6 @@ app.use((req, res) => {
     });
     return;
 });
-
 
 // Start the server
 const port = process.env.PORT || 8022;

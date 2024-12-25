@@ -14,6 +14,10 @@ const milestoneSchema = mongoose.Schema(
             type: String,
             required: true,
         },
+        remark:{
+            type: String,
+            required: true,
+        },
         propertyId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Property",
