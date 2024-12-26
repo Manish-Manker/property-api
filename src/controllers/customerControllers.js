@@ -38,7 +38,7 @@ export const getCustomers = async (req, res) => {
     try {
         const customers = await Customer.find({ createdBy: req.user._id }).select("-__v -updatedAt -createdAt");
 
-        if (customers.length > 0 && customers !== []) {
+        if (customers.length > 0 ) {
             res.status(200).json({ status: 200, message: 'Customers found successfully', data: customers });
         } else {
             console.log("No Customers found");
@@ -72,7 +72,7 @@ export const updateCustomer = async (req, res) => {
         const existingCustomer = await Customer.find({  _id: { $ne: customerId },mobileNo: customerData.mobileNo });
         // console.log("->>",existingCustomer);
 
-        if (existingCustomer.length > 0 && existingCustomer !== []) {
+        if (existingCustomer.length > 0 ) {
             console.log("Customer already exists");
             res.status(400).json({ status: 400, message: 'Customer already exists', data: null });
             return;

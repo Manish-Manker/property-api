@@ -26,6 +26,11 @@ export const setProperty = async (req, res) => {
 
         propertyData.created_by = userId;
 
+        const existingProperty = await Property.findOne({ property_name: propertyData.property_name, created_by: userId });
+        if (existingProperty) {
+            res.status(400).json({ status: 400, message: "Property already exist", data: null });
+            return;
+        }
 
         const property = new Property(propertyData);
 
@@ -118,18 +123,19 @@ export const updateProperty = async (req, res) => {
         const propertyData = req.body;
         let propertyId = req.params?.id;
 
-        if (!propertyId) {
-            res.status(400).json({ status: 400, message: "Property id is required", data: null });
-            return;
-        }
-        let property = await Property.findOne({ _id: propertyId });
-
         const { error } = validateProperty(propertyData);
         if (error) {
             res.status(400).json({ status: 400, message: error, data: null });
             console.log(error);
             return;
         }
+
+        if (!propertyId) {
+            res.status(400).json({ status: 400, message: "Property id is required", data: null });
+            return;
+        }
+        let existproperty = await Property.findOne({ _id: { $ne: propertyId }, property_name: propertyData.property_name });
+
 
         let PartnerPercentage = checkPartnerPercentage(propertyData.partner);
 
@@ -139,11 +145,16 @@ export const updateProperty = async (req, res) => {
             return;
         }
 
-        if (property) {
-            property = await Property.findOneAndUpdate({ _id: propertyId }, { ...propertyData }, { new: true });
-            res.status(200).json({ status: 200, message: "Property updated successfully", data: property });
+        if (!existproperty) {
+            const updatedProperty = await Property.findOneAndUpdate({ _id: propertyId, status: { $ne: "sold" } }, { ...propertyData }, { new: true });
+            if (updatedProperty) {
+                res.status(200).json({ status: 200, message: "Property updated successfully", data: updatedProperty });
+            } else {
+                res.status(400).json({ status: 400, message: "Cannot update property with status 'sold'", data: null });
+                return;
+            }
         } else {
-            res.status(404).json({ status: 404, message: "Property did not exist ", data: null });
+            res.status(404).json({ status: 404, message: "Property Already exist ", data: null });
             return;
         }
 
@@ -159,16 +170,15 @@ export const deleteProperty = async (req, res) => {
         const propertyId = req.params?.id;
         const userId = req.user?._id;
 
-        const property = await Property.findOneAndDelete({ _id: propertyId, created_by: userId });
+        const property = await Property.findOneAndDelete({ _id: propertyId, created_by: userId, status: "added" });
         // console.log(property);
 
-        const result = await Milestone.deleteMany({ propertyId: propertyId, createdBy: userId });
-        // console.log("->",result);
-
         if (property) {
+            const result = await Milestone.deleteMany({ propertyId: propertyId, createdBy: userId });
+            // console.log("->",result);
             res.status(200).json({ status: 200, message: "Property deleted successfully", data: property });
         } else {
-            res.status(404).json({ status: 404, message: "Property did not exist ", data: null });
+            res.status(404).json({ status: 404, message: "Can not delete Property with Status sold or deal_done or purchase ", data: null });
             return;
         }
     } catch (error) {
@@ -183,7 +193,7 @@ export const deleteProperty = async (req, res) => {
 const checkPartnerPercentage = (partnerData) => {
     // console.log("partnerData->", partnerData);
 
-    if (partnerData.length === 1 && partnerData[0] === "Individual") {
+    if (partnerData.length == 0 || partnerData === []) {
         return true;
     }
     let totalPercentage = 0;
@@ -191,7 +201,8 @@ const checkPartnerPercentage = (partnerData) => {
     partnerData.forEach(obj => {
         totalPercentage += parseInt(obj.percentage);
     });
-    // console.log("totalPercentage->", totalPercentage);
+
+    console.log("totalPercentage->", totalPercentage);
 
     if (totalPercentage === 100) {
         return true;

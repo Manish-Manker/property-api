@@ -99,7 +99,7 @@ export const getTransaction = async (req, res) => {
     try {
         const userId = req.user._id;
         let data = await Transaction.find({ userId: userId }).sort({ $natural: -1 });
-        if (data !== []) {
+        if (data.length > 0) {
             res.status(200).json({ status: 200, message: "transaction found successfully", data });
         } else {
             res.status(404).json({ status: "transaction not found", data });

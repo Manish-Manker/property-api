@@ -41,6 +41,12 @@ export const createMilestone = async (req, res) => {
             return;
         }
 
+        if(totalAmount === totalPaidAmount) {
+            console.log("No milestone created, toatal amount is paid already");            
+            res.status(400).json({ status: "400", message: "No milestone created, toatal amount is paid already", data: null });
+            return;
+        }
+
         const milestone = new Milestone({ ...milestoneData, createdBy: userId });
         const result = await milestone.save();
 
