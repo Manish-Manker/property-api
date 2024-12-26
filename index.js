@@ -18,23 +18,23 @@ config();
 const app = express();
 
 //limiter for rate limiting
-// const limiter = rateLimit({
-//     windowMs: 1 * 60 * 1000,
-//     limit: 250,
-//     statusCode: 429,
-//     handler: (req, res) => {
-//         res.status(429).json({
-//             status: 429,
-//             message: 'Too many requests from this IP, please try again after some time',
-//             data: null
-//         });
-//         return;
-//     },
-//     message: 'Too many requests from this IP, please try again after an some time',
-//     standardHeaders: true,
-//     legacyHeaders: false,
-//     validate: false,
-// });
+const limiter = rateLimit({
+    windowMs: 1 * 60 * 1000,
+    limit: 550,
+    statusCode: 429,
+    handler: (req, res) => {
+        res.status(429).json({
+            status: 429,
+            message: 'Too many requests from this IP, please try again after some time',
+            data: null
+        });
+        return;
+    },
+    message: 'Too many requests from this IP, please try again after an some time',
+    standardHeaders: true,
+    legacyHeaders: false,
+    validate: false,
+});
 
 // Connect to the database
 ConnectDB().then((res) => {
@@ -62,8 +62,8 @@ app.use(morgan(':remote-addr - :remote-user [:date] ":method :url HTTP/:http-ver
 // Middleware to parse JSON bodies
 app.use(express.json());
 
-// Apply the rate limiting middleware to all requests.
-// app.use(limiter);
+// Apply the rate limiting  all requests.
+app.use(limiter);
 
 // Routes
 app.use("/user", UserRouter);

@@ -1,5 +1,7 @@
 import Property from '../models/propertyModel.js';
 import Milestone from "../models/milestoneModel.js";
+import Wallet from '../models/wallet.js'
+import Transaction from '../models/transaction.js'
 
 import { validateProperty, validateStatus } from '../utils/validation/propertyValidation.js'
 
@@ -34,13 +36,32 @@ export const setProperty = async (req, res) => {
 
         const property = new Property(propertyData);
 
-        property.save().then((property) => {
+        let saveProperty = await property.save();
+
+        if (saveProperty.status === "purchase") {
+            let milestoneData = await createMilestone(property, userId);
+            // console.log("milestoneData->", milestoneData);
+
+            let transactionData = await createTransaction(property, userId);
+            // console.log("transactionData->", transactionData);
+
+            let walletData = await updateWallet(property, userId);
+            // console.log("walletData->", walletData);
+            if (!walletData) {
+                res.status(400).json({ status: 400, message: "You don't have sufficient amount to purchase", data: null });
+                return;
+            }
+
             res.status(201).json({ status: 201, message: "Property added successfully", data: property });
-        }).catch((error) => {
+            return;
+        }
+
+        if (saveProperty.length === 0 || !saveProperty) {
             res.status(500).json({ status: 500, message: "Error in adding property", data: null });
             console.log(error);
             return;
-        })
+        }
+        res.status(201).json({ status: 201, message: "Property added successfully", data: property });
     } catch (error) {
         res.status(500).json({ status: 500, message: "Internal server error", data: null });
         console.log(error);
@@ -164,7 +185,7 @@ export const updateProperty = async (req, res) => {
         return;
     }
 }
-
+ 
 export const deleteProperty = async (req, res) => {
     try {
         const propertyId = req.params?.id;
@@ -189,6 +210,13 @@ export const deleteProperty = async (req, res) => {
 
 }
 
+const formatDate = (date) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
+}
 
 const checkPartnerPercentage = (partnerData) => {
     // console.log("partnerData->", partnerData);
@@ -209,4 +237,48 @@ const checkPartnerPercentage = (partnerData) => {
     } else {
         return false;
     }
+}
+
+const createMilestone = async (property, userId) => {
+    const milestoneData = {
+        amount: property.total,
+        dueDate: formatDate(Date.now()),
+        status: "paid",
+        remark: "Direct purchase",
+        propertyId: property._id,
+        createdBy: userId,
+    }
+    const milestone = new Milestone(milestoneData);
+    let data = await milestone.save();
+    return data;
+}
+
+const createTransaction = async (property, userId) => {
+    const transactionData = {
+        transaction_type: "purchase",
+        amount: property.total,
+        remark: "Direct purchase",
+        propertyId: property._id,
+        userId: userId,
+    }
+    const transaction = new Transaction(transactionData);
+    let data = await transaction.save();
+    return data;
+}
+
+const updateWallet = async (property, userId) => {
+    const walletData = await Wallet.find({ userId: userId });
+
+    let oldBalance = parseInt(walletData[0]?.balance);
+    if (oldBalance <= 0) {
+        return false;
+    }
+    let newbalance = parseInt(property.total);
+
+    if(oldBalance-newbalance<=0){
+        return false;
+    }
+    const data = await Wallet.findOneAndUpdate({ userId: userId }, { balance: oldBalance - newbalance }, { new: true });
+
+    return data;
 }

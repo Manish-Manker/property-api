@@ -36,16 +36,17 @@ export const createMilestone = async (req, res) => {
         const unpaidAmount = totalAmount - totalPaidAmount;
         // console.log("unpaidAmount", unpaidAmount);
 
+        if (totalAmount === totalPaidAmount) {
+            console.log("No milestone created, total amount is paid already");
+            res.status(400).json({ status: "400", message: "No milestone created, total amount is paid already", data: null });
+            return;
+        }
+
         if (parseInt(milestoneData.amount) > unpaidAmount) {
             res.status(400).json({ status: "400", message: "Milestone amount exceeds unpaid amount", data: null });
             return;
         }
 
-        if(totalAmount === totalPaidAmount) {
-            console.log("No milestone created, toatal amount is paid already");            
-            res.status(400).json({ status: "400", message: "No milestone created, toatal amount is paid already", data: null });
-            return;
-        }
 
         const milestone = new Milestone({ ...milestoneData, createdBy: userId });
         const result = await milestone.save();
@@ -95,11 +96,9 @@ export const getMilestone = async (req, res) => {
                     unpaidMilestone++;
                 }
             });
-
-            totalUnpaidAmount = (parseInt(totalAmount) - parseInt(totalPaidAmount)); 
-
+            totalUnpaidAmount = (parseInt(totalAmount) - parseInt(totalPaidAmount));
         } else {
-            res.status(404).json({ status: "404", message: "Milestone not found for this Property ", data: [{ totalAmount, paidMilestone, unpaidMilestone, totalPaidAmount, totalUnpaidAmount }] });
+            res.status(404).json({ status: "404", message: "Milestone not found for this Property ", data: null, totalAmount, paidMilestone, unpaidMilestone, totalPaidAmount, totalUnpaidAmount });
             return;
         }
         res.status(200).json({ status: "200", message: "Milestone fetched successfully", data: result, totalAmount, paidMilestone, unpaidMilestone, totalPaidAmount, totalUnpaidAmount });
