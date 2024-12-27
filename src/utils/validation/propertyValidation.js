@@ -7,8 +7,8 @@ const propertySchema = joi.object({
     longitude: joi.string().required().error(new Error('longitude is required and can not be empty')),
     size: joi.number().required().error(new Error('Size is required and can not be empty')),
     typeof_size: joi.string().trim().required().error(new Error('Type of size is required and can not be empty')),
-    price: joi.number().required().error(new Error('Price is required and can not be empty')),
-    total: joi.number().required().error(new Error('Total is required and can not be empty')),
+    price: joi.number().required().min(1).error(new Error('Price is required and can not be empty and minimum of 1 Rs.')),
+    total: joi.number().required().min(1).error(new Error('Total is required and can not be empty and minimum of 1 Rs.')),
     custumer_id: joi.string().required().error(new Error('Custumer id  can not be empty')),
     status: joi.string().valid('added', 'sold', 'deal_running', 'purchase').trim().required().error(new Error("Status is required and it should be added or sold or deal_running or purchase")),
     partner: joi.array().required().error(new Error('partner is required and must be an array '))
