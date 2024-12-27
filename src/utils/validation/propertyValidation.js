@@ -10,7 +10,7 @@ const propertySchema = joi.object({
     price: joi.number().required().error(new Error('Price is required and can not be empty')),
     total: joi.number().required().error(new Error('Total is required and can not be empty')),
     custumer_id: joi.string().required().error(new Error('Custumer id  can not be empty')),
-    status: joi.string().valid('added', 'sold', 'deal_runing', 'purchase').trim().required().error(new Error("Status is required and it should be added or sold or deal_done or purchase")),
+    status: joi.string().valid('added', 'sold', 'deal_running', 'purchase').trim().required().error(new Error("Status is required and it should be added or sold or deal_running or purchase")),
     partner: joi.array().required().error(new Error('partner is required and must be an array '))
 });
 

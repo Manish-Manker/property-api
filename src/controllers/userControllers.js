@@ -2,23 +2,25 @@ import User from "../models/userModel.js";
 import { generateToken } from "../utils/generateJWTToken.js";
 import { validateUser, validateLoginUser } from "../utils/validation/userValidation.js";
 
-
 export const registerUser = async (req, res) => {
-
     try {
         const { name, password, mobileNo } = req.body;
+
+        // Validate User Data
         let { error } = await validateUser({ name, password, mobileNo });
         if (error) {
             res.status(400).json({ status: 400, message: error, data: null });
             console.log(error);
             return;
         }
-        const userExixt = await User.find({ mobileNo });
 
+        // Check User Already Exist
+        const userExixt = await User.find({ mobileNo });
         if (userExixt.lenght !== [] && userExixt.length > 0) {
             res.status(400).json({ status: 400, message: "user Already Exist", data: null });
             return;
         }
+
         const newUser = await User.create({
             name,
             password,
@@ -47,10 +49,10 @@ export const registerUser = async (req, res) => {
 };
 
 export const loginUser = async (req, res) => {
-
     try {
         const { mobileNo, password } = req.body;
 
+        // Validate User Data
         let { error } = validateLoginUser({ mobileNo, password });
         if (error) {
             res.status(400).json({ status: 400, message: error, data: null });
@@ -59,7 +61,6 @@ export const loginUser = async (req, res) => {
         }
 
         const user = await User.findOne({ mobileNo });
-
         if (user && (await user.matchPassword(password))) {
             res.status(200).json({
                 status: 200, message: "Login Successfully",
@@ -84,7 +85,6 @@ export const loginUser = async (req, res) => {
 export const updateUser = async (req, res) => {
     try {
         const { name, password, mobileNo } = req.body;
-
         let { error } = validateUser({ name, password, mobileNo });
         if (error) {
             res.status(400).json({ status: 400, message: error, data: null });
@@ -92,7 +92,6 @@ export const updateUser = async (req, res) => {
             return;
         }
         const userExixt = await User.findById(req.user._id);
-
         const userId = req.user._id;
         const userPreExixt = await User.find({ _id: { $ne: userId }, mobileNo: mobileNo });
 

@@ -7,6 +7,7 @@ export const getBalance = async (req, res) => {
         const walletData = await Wallet.find({ userId: userId });
 
         if (walletData == [] || walletData.length == 0) {
+            // create wallet for user if not found
             let data = new Wallet({
                 balance: 0,
                 userId: userId
@@ -20,7 +21,6 @@ export const getBalance = async (req, res) => {
                 return;
             }
         }
-
         let balance = walletData[0]?.balance;
         res.status(200).json({ status: 200, message: "balance found successfully", data: balance });
     } catch (error) {
@@ -39,7 +39,6 @@ export const addBalance = async (req, res) => {
         }
 
         const walletData = await Wallet.find({ userId: userId });
-
         if (walletData == [] || walletData.length == 0) {
             let data = new Wallet({
                 balance: newbalance,
@@ -56,12 +55,10 @@ export const addBalance = async (req, res) => {
         }
 
         let oldBalance = walletData[0]?.balance;
-
         oldBalance = parseInt(oldBalance);
         newbalance = parseInt(newbalance);
 
         const data = await Wallet.findOneAndUpdate({ userId: userId }, { balance: oldBalance + newbalance }, { new: true });
-
         if (data) {
             res.status(201).json({ status: 200, message: "balance added successfully", data: { balance: data.balance } })
         } else {

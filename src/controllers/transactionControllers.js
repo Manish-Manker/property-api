@@ -10,8 +10,7 @@ export const saveTransaction = async (req, res) => {
         let transactionData = req.body;
         let propertyId = req.body?.propertyId;
 
-
-        // validation 
+        // joi validation 
         const { error } = validateTransaction(transactionData);
         if (error) {
             console.log(error);
@@ -22,18 +21,15 @@ export const saveTransaction = async (req, res) => {
         let type = transactionData?.transaction_type;
 
         if (type === "addBalance" || type === "sell") {
-            console.log("add");
+            // console.log("add");
 
             const walletData = await Wallet.find({ userId: userId });
-            // console.log("walletData",walletData);
-
             let oldBalance = walletData[0]?.balance;
-
             oldBalance = parseInt(oldBalance);
             let newbalance = parseInt(transactionData.amount);
-
+            
+            // update balance in wallet
             const data = await Wallet.findOneAndUpdate({ userId: userId }, { balance: oldBalance + newbalance }, { new: true });
-            // console.log(data);
 
             if (!data) {
                 res.status(400).json({ status: 400, message: "balance not updated in Wallet", data: null });
@@ -41,22 +37,19 @@ export const saveTransaction = async (req, res) => {
             }
 
         } else if (type == "subtractBalance" || type == "purchase") {
-            console.log("sub");
-
+            // console.log("sub");
             const walletData = await Wallet.find({ userId: userId });
             let oldBalance = walletData[0]?.balance;
-
             oldBalance = parseInt(oldBalance);
             let newbalance = parseInt(transactionData.amount);
 
+            // check if user have sufficient amount to subtract
             if (oldBalance - newbalance < 0) {
                 console.log("You don't have sufficient amount to subtract");
                 res.status(400).json({ status: 400, message: "You don't have sufficient amount to subtract", data: null });
                 return;
             }
-
             const data = await Wallet.findOneAndUpdate({ userId: userId }, { balance: oldBalance - newbalance }, { new: true });
-
             if (!data) {
                 console.log("balance not updated in Wallet");
                 res.status(400).json({ status: 400, message: "balance not updated in Wallet", data: null });
@@ -69,8 +62,8 @@ export const saveTransaction = async (req, res) => {
             if (type === "purchase") status = "purchase";
             if (type === "sell") status = "sold";
 
+            // update property status
             let propertyData = await Property.findOneAndUpdate({ _id: propertyId }, { status }, { new: true });
-
             if (!propertyData) {
                 console.log("property status not updated");
                 res.status(400).json({ status: 400, message: "property status not updated", data: null });
@@ -80,7 +73,6 @@ export const saveTransaction = async (req, res) => {
 
         let transaction = new Transaction({ ...transactionData, userId: userId });
         let result = await transaction.save();
-
         if (result) {
             res.status(201).json({ status: 201, message: "Transaction save successfully", data: result });
         } else {
