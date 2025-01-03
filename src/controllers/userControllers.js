@@ -16,7 +16,7 @@ export const registerUser = async (req, res) => {
 
         // Check User Already Exist
         const userExixt = await User.find({ mobileNo });
-        if (userExixt.lenght !== [] && userExixt.length > 0) {
+        if (userExixt.length > 0) {
             res.status(400).json({ status: 400, message: "user Already Exist", data: null });
             return;
         }
@@ -76,8 +76,8 @@ export const loginUser = async (req, res) => {
             return;
         }
     } catch (error) {
-        res.status(500).json({ status: 500, message: "Internal Server Error", data: null });
         console.log(error);
+        res.status(500).json({ status: 500, message: "Internal Server Error", data: null });
         return;
     }
 };
@@ -87,15 +87,15 @@ export const updateUser = async (req, res) => {
         const { name, password, mobileNo } = req.body;
         let { error } = validateUser({ name, password, mobileNo });
         if (error) {
-            res.status(400).json({ status: 400, message: error, data: null });
             console.log(error);
+            res.status(400).json({ status: 400, message: error, data: null });
             return;
         }
         const userExixt = await User.findById(req.user._id);
         const userId = req.user._id;
         const userPreExixt = await User.find({ _id: { $ne: userId }, mobileNo: mobileNo });
 
-        if (userPreExixt.length > 0 && userPreExixt !== []) {
+        if (userPreExixt.length > 0 ) {
             res.status(400).json({ status: 400, message: "Mobile Number already exixt", data: null });
             return;
         }

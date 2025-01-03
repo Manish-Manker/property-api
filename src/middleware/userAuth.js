@@ -15,9 +15,7 @@ export const userAuth = async (req, res, next) => {
             req.user = await User.findById(decoded.id).select("-password");
 
             if (!req.user) {
-                return res
-                    .status(401)
-                    .json({ status: 401, message: "User not found, unauthorized", data: null });
+                return res.status(401).json({ status: 401, message: "User not found, unauthorized", data: null });
             }
             next();
         } catch (error) {
@@ -25,6 +23,6 @@ export const userAuth = async (req, res, next) => {
             return res.status(401).json({ status: 401, message: "User not found, unauthorized, token failed", data: null });
         }
     } else {
-        return res.status(401).json({ status: 401, message: "Not authorized, no token", data: null });
+        return res.status(401).json({ status: 401, message: "Not authorized, no token found", data: null });
     }
 }; 

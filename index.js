@@ -20,7 +20,7 @@ const app = express();
 //limiter for rate limiting
 const limiter = rateLimit({
     windowMs: 1 * 60 * 1000,
-    limit: 550,
+    limit: 250,
     statusCode: 429,
     handler: (req, res) => {
         res.status(429).json({

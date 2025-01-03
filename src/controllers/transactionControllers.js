@@ -3,7 +3,6 @@ import Transaction from '../models/transaction.js'
 import Property from '../models/propertyModel.js'
 import { validateTransaction } from '../utils/validation/transactionValidation.js';
 
-
 export const saveTransaction = async (req, res) => {
     try {
         const userId = req.user._id;
@@ -22,7 +21,6 @@ export const saveTransaction = async (req, res) => {
 
         if (type === "addBalance" || type === "sell") {
             // console.log("add");
-
             const walletData = await Wallet.find({ userId: userId });
             let oldBalance = walletData[0]?.balance;
             oldBalance = parseInt(oldBalance);

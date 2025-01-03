@@ -10,5 +10,4 @@ router.get("/get", userAuth, getCustomers);
 router.put("/update/:id", userAuth, updateCustomer);
 router.delete("/delete/:id", userAuth, deleteCustomer);
 
-
 export default router;

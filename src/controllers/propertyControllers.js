@@ -88,12 +88,11 @@ export const getProperty = async (req, res) => {
             properties = dataprp;
         }
         else if (status) {
-
             // joi validation for status
             const { error } = validateStatus({ status });
             if (error) {
-                res.status(400).json({ status: 400, message: error, data: null });
                 console.log(error);
+                res.status(400).json({ status: 400, message: error, data: null });
                 return;
             }
 
@@ -263,11 +262,10 @@ const formatDate = (date) => {
 
 const checkPartnerPercentage = (partnerData) => {
 
-    if (partnerData.length == 0 || partnerData === []) {
+    if (!Array.isArray(partnerData) || partnerData.length === 0) {
         return true;
     }
     let totalPercentage = 0;
-
     partnerData.forEach(obj => {
         totalPercentage += parseInt(obj.percentage);
     });
@@ -314,7 +312,6 @@ const updateWallet = async (property, userId) => {
         return false;
     }
     let newbalance = parseInt(property.total);
-
     if (oldBalance - newbalance <= 0) {
         return false;
     }
